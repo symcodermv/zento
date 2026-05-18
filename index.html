@@ -229,6 +229,7 @@ textarea{resize:vertical;min-height:60px}
     <button class="sb-item" data-pg="slider"     onclick="goto('slider');closeSB()"><i class="fa fa-images"></i> Slider Banners</button>
     <button class="sb-item" data-pg="settings"   onclick="goto('settings');closeSB()"><i class="fa fa-cog"></i> Shop Settings</button>
     <div class="sb-sec">System</div>
+    <button class="sb-item" data-pg="rewards-admin" onclick="goto('rewards-admin');closeSB()"><i class="fa fa-star" style="color:var(--amber)"></i> Points & Rewards</button>
     <button class="sb-item" data-pg="categories" onclick="goto('categories');closeSB()"><i class="fa fa-tags"></i> Categories</button>
     <button class="sb-item" data-pg="access"     onclick="goto('access');closeSB()"><i class="fa fa-shield-alt"></i> Access Control</button>
     <button class="sb-item" data-pg="reports"    onclick="goto('reports');closeSB()"><i class="fa fa-chart-bar"></i> Reports</button>
@@ -314,6 +315,53 @@ textarea{resize:vertical;min-height:60px}
     <div class="page" id="page-access">
       <div class="card"><div class="card-hdr"><div class="card-title">Firebase Admin Users</div><button class="btn btn-p btn-sm" onclick="openModal('m-user')"><i class="fa fa-user-plus"></i> Create</button></div><div style="background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:12px"><div style="font-size:11px;color:var(--ink2);margin-bottom:8px">Currently signed in:</div><div style="display:flex;align-items:center;gap:10px"><div class="sb-av" id="acc-av" style="width:36px;height:36px;font-size:14px">A</div><div><div style="font-weight:600" id="acc-email">&#8212;</div><div style="font-size:11px;color:var(--ink3)">Firebase Admin</div></div></div></div><div style="background:var(--ag);border-radius:10px;padding:12px;border:1px solid rgba(0,229,191,.2);font-size:11px;color:var(--a)"><i class="fa fa-info-circle"></i> To add users: Firebase Console &rarr; Authentication &rarr; Users &rarr; Add User</div></div>
     </div>
+    <!-- REWARDS ADMIN -->
+    <div class="page" id="page-rewards-admin">
+      <!-- Points Config -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-hdr">
+          <div><div class="card-title"><i class="fa fa-star" style="color:var(--amber)"></i> Points & Rewards Settings</div><div class="card-sub">Changes apply instantly to all users</div></div>
+          <button class="btn btn-p btn-sm" onclick="savePointsConfig()"><i class="fa fa-save"></i> Save Config</button>
+        </div>
+        <div class="fgrid">
+          <div class="fg"><label>Signup Bonus Points</label><input type="number" id="pc-signup" placeholder="100" value="100"><div style="font-size:10px;color:var(--ink3);margin-top:3px">Points given when user creates account</div></div>
+          <div class="fg"><label>Order Points Rate (per 100 MVR)</label><input type="number" id="pc-order" placeholder="10" value="10"><div style="font-size:10px;color:var(--ink3);margin-top:3px">e.g. 10 = earn 10 pts per MVR 100 spent</div></div>
+          <div class="fg"><label>Referral Bonus Points</label><input type="number" id="pc-ref" placeholder="50" value="50"><div style="font-size:10px;color:var(--ink3);margin-top:3px">Both referrer and new user get this</div></div>
+          <div class="fg"><label>Redeem Threshold (points)</label><input type="number" id="pc-thresh" placeholder="100" value="100"><div style="font-size:10px;color:var(--ink3);margin-top:3px">Points needed for one discount</div></div>
+          <div class="fg"><label>Redeem Value (MVR per threshold)</label><input type="number" id="pc-disc" placeholder="10" value="10"><div style="font-size:10px;color:var(--ink3);margin-top:3px">MVR discount per threshold redeemed</div></div>
+        </div>
+      </div>
+      <!-- Referral Code Config -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-hdr">
+          <div><div class="card-title"><i class="fa fa-ticket-alt" style="color:var(--purple)"></i> Referral Code Settings</div><div class="card-sub">Control how referral codes work</div></div>
+          <button class="btn btn-p btn-sm" onclick="savePointsConfig()"><i class="fa fa-save"></i> Save</button>
+        </div>
+        <div class="fgrid">
+          <div class="fg"><label>Referral Discount (MVR)</label><input type="number" id="pc-ref-disc" placeholder="10" value="10"><div style="font-size:10px;color:var(--ink3);margin-top:3px">MVR off for buyer who uses a referral code at checkout</div></div>
+          <div class="fg"><label>Referral Points Bonus</label><input type="number" id="pc-ref" placeholder="50" value="50"><div style="font-size:10px;color:var(--ink3);margin-top:3px">Points earned by code owner when someone uses their code</div></div>
+          <div class="fg"><label>Code Prefix</label><input id="pc-prefix" placeholder="ZT" maxlength="4" style="text-transform:uppercase"><div style="font-size:10px;color:var(--ink3);margin-top:3px">e.g. ZT → codes like ZT-ABC123</div></div>
+          <div class="fg"><label>Allow Self-Use</label><select id="pc-selfuse"><option value="false">No — users cannot use own code</option><option value="true">Yes — allow self-use</option></select></div>
+        </div>
+      </div>
+
+      <!-- Users Referral Code Table -->
+      <div class="card">
+        <div class="card-hdr">
+          <div><div class="card-title">Users & Referral Codes</div><div class="card-sub" id="rewards-users-sub">Loading…</div></div>
+          <div class="btn-grp">
+            <input type="text" id="rewards-search" placeholder="Search user…" oninput="filterRewardsUsers()" style="width:140px;padding:6px 10px;font-size:12px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--ink);outline:none">
+            <button class="btn btn-g btn-sm" onclick="loadRewardsUsers()"><i class="fa fa-sync"></i> Refresh</button><button class="btn btn-i btn-sm" onclick="syncAllRefCodes()" title="Sync all codes to Firebase"><i class="fa fa-tools"></i> Sync All Codes</button>
+          </div>
+        </div>
+        <div class="tbl-wrap desk-tbl">
+          <table><thead><tr><th>Name</th><th>Email</th><th>Points</th><th>Ref Code</th><th>Referrals</th><th>Used By</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="rewards-tbody"></tbody></table>
+        </div>
+        <div class="mob-list" id="rewards-mob"></div>
+      </div>
+    </div>
+
     <!-- REPORTS -->
     <div class="page" id="page-reports">
       <div class="card"><div class="card-hdr"><div class="card-title">Monthly Summary</div><select id="rep-mon" onchange="loadReports()" style="width:auto;padding:6px 24px 6px 8px;font-size:11px"></select></div><div class="stats-grid" id="rep-stats"></div></div>
@@ -368,11 +416,60 @@ textarea{resize:vertical;min-height:60px}
 <div class="overlay" id="m-order-det"><div class="modal wide"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-shopping-bag" style="color:var(--blue)"></i> Order Details</div><button class="m-x" onclick="closeModal('m-order-det')"><i class="fa fa-times"></i></button></div><div id="order-det-body"></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-order-det')">Close</button></div></div></div>
 <div class="overlay" id="m-staff"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-user-plus" style="color:var(--purple)"></i> Staff Member</div><button class="m-x" onclick="closeModal('m-staff')"><i class="fa fa-times"></i></button></div><input type="hidden" id="st-id"><div class="fgrid"><div class="fg"><label>Full Name</label><input id="st-name2" placeholder="Full name"></div><div class="fg"><label>Phone</label><input type="tel" id="st-phone2" placeholder="+960..."></div><div class="fg"><label>Role</label><input id="st-role" placeholder="e.g. Cashier"></div><div class="fg"><label>Basic Salary (MVR)</label><input type="number" id="st-sal" placeholder="0"></div><div class="fg"><label>Email</label><input type="email" id="st-email2" placeholder="staff@zento.mv"></div><div class="fg"><label>Join Date</label><input type="date" id="st-join"></div><div class="fg full"><label>Address</label><input id="st-addr2" placeholder="Island, Maldives"></div><div class="fg"><label>Status</label><select id="st-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-staff')">Cancel</button><button class="btn btn-p" onclick="saveStaff()"><i class="fa fa-check"></i> Save</button></div></div></div>
 <div class="overlay" id="m-salary"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-wallet" style="color:var(--green)"></i> Payroll Record</div><button class="m-x" onclick="closeModal('m-salary')"><i class="fa fa-times"></i></button></div><input type="hidden" id="sal-id"><div class="fgrid"><div class="fg"><label>Employee</label><select id="sal-staff"><option value="">Select staff</option></select></div><div class="fg"><label>Month</label><input type="month" id="sal-month"></div><div class="fg"><label>Basic (MVR)</label><input type="number" id="sal-basic" placeholder="0"></div><div class="fg"><label>Bonus (MVR)</label><input type="number" id="sal-bonus" value="0"></div><div class="fg"><label>Deduction (MVR)</label><input type="number" id="sal-ded" value="0"></div><div class="fg"><label>Status</label><select id="sal-status"><option value="pending">Pending</option><option value="paid">Paid</option></select></div><div class="fg full"><label>Notes</label><textarea id="sal-notes" placeholder="Optional..."></textarea></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-salary')">Cancel</button><button class="btn btn-p" onclick="saveSalary()"><i class="fa fa-check"></i> Save</button></div></div></div>
-<div class="overlay" id="m-product"><div class="modal wide"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-box-open" style="color:var(--a)"></i> Product</div><button class="m-x" onclick="closeModal('m-product')"><i class="fa fa-times"></i></button></div><input type="hidden" id="p-id"><div class="fgrid"><div class="fg"><label>Name (EN)</label><input id="p-name" placeholder="Product name"></div><div class="fg"><label>Dhivehi Name</label><input id="p-dv" placeholder="Dhivehi name" style="direction:rtl"></div><div class="fg"><label>Price (MVR)</label><input type="number" id="p-price" placeholder="0.00" step="0.01"></div><div class="fg"><label>Original Price (SALE)</label><input type="number" id="p-oprice" placeholder="0.00" step="0.01"></div><div class="fg"><label>Category</label><select id="p-cat"><option value="fruits">Fruits</option><option value="vegetables">Vegetables</option><option value="dairy">Dairy</option><option value="meat">Meat</option><option value="bakery">Bakery</option><option value="beverages">Beverages</option><option value="other">Other</option></select></div><div class="fg"><label>Stock Qty</label><input type="number" id="p-stock" placeholder="0"></div><div class="fg full"><label>Image URL</label><input type="url" id="p-imgurl" placeholder="https://..."></div><div class="fg full"><label>Description</label><textarea id="p-desc" placeholder="Short description..."></textarea></div><div class="fg"><label>Featured</label><select id="p-feat"><option value="false">No</option><option value="true">Yes</option></select></div><div class="fg"><label>Status</label><select id="p-active"><option value="true">Active</option><option value="false">Hidden</option></select></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-product')">Cancel</button><button class="btn btn-p" onclick="saveProduct()"><i class="fa fa-check"></i> Save Product</button></div></div></div>
+<div class="overlay" id="m-product"><div class="modal wide"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-box-open" style="color:var(--a)"></i> Product</div><button class="m-x" onclick="closeModal('m-product')"><i class="fa fa-times"></i></button></div><input type="hidden" id="p-id"><div class="fgrid"><div class="fg"><label>Name (EN)</label><input id="p-name" placeholder="Product name"></div><div class="fg"><label>Dhivehi Name</label><input id="p-dv" placeholder="Dhivehi name" style="direction:rtl"></div><div class="fg"><label>Price (MVR)</label><input type="number" id="p-price" placeholder="0.00" step="0.01"></div><div class="fg">
+  <label>Original Price (for SALE badge)</label>
+  <input type="number" id="p-oprice" placeholder="0.00 — leave empty = no sale" step="0.01">
+  <div style="display:flex;align-items:center;gap:7px;margin-top:6px">
+    <input type="checkbox" id="p-show-sale" style="width:16px;height:16px;accent-color:var(--a);cursor:pointer">
+    <label for="p-show-sale" style="text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink2);cursor:pointer;font-family:var(--font)">Show SALE badge &amp; strikethrough price on shop</label>
+  </div>
+</div><div class="fg"><label>Category</label><select id="p-cat"><option value="fruits">Fruits</option><option value="vegetables">Vegetables</option><option value="dairy">Dairy</option><option value="meat">Meat</option><option value="bakery">Bakery</option><option value="beverages">Beverages</option><option value="other">Other</option></select></div><div class="fg">
+  <label>Stock Qty</label>
+  <input type="number" id="p-stock" placeholder="0" min="0">
+  <div style="display:flex;align-items:center;gap:7px;margin-top:6px">
+    <input type="checkbox" id="p-oos" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer" onchange="if(this.checked)$('p-stock').value=0">
+    <label for="p-oos" style="text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink2);cursor:pointer;font-family:var(--font)">Mark as Out of Stock (set qty to 0)</label>
+  </div>
+</div><div class="fg full"><label>Image URL</label><input type="url" id="p-imgurl" placeholder="https://..."></div><div class="fg full"><label>Description</label><textarea id="p-desc" placeholder="Short description..."></textarea></div><div class="fg"><label>Featured</label><select id="p-feat"><option value="false">No</option><option value="true">Yes</option></select></div><div class="fg"><label>Status</label><select id="p-active"><option value="true">Active</option><option value="false">Hidden</option></select></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-product')">Cancel</button><button class="btn btn-p" onclick="saveProduct()"><i class="fa fa-check"></i> Save Product</button></div></div></div>
 <div class="overlay" id="m-slider"><div class="modal wide"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-images" style="color:var(--blue)"></i> Slider Banner</div><button class="m-x" onclick="closeModal('m-slider')"><i class="fa fa-times"></i></button></div><input type="hidden" id="sl-id"><div class="fgrid"><div class="fg full"><label>Image URL</label><input type="url" id="sl-imgurl" placeholder="https://images.unsplash.com/..."></div><div class="fg"><label>Title</label><input id="sl-title" placeholder="Fresh Produce Daily"></div><div class="fg"><label>Subtitle</label><input id="sl-desc" placeholder="Farm-fresh..."></div><div class="fg"><label>Order (1=first)</label><input type="number" id="sl-order" value="1"></div><div class="fg"><label>Status</label><select id="sl-active"><option value="true">Active</option><option value="false">Hidden</option></select></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-slider')">Cancel</button><button class="btn btn-p" onclick="saveSlider()"><i class="fa fa-check"></i> Save Slide</button></div></div></div>
 <div class="overlay" id="m-cat"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title" id="cat-title">Category</div><button class="m-x" onclick="closeModal('m-cat')"><i class="fa fa-times"></i></button></div><input type="hidden" id="cat-id"><input type="hidden" id="cat-type"><div class="fgrid one"><div class="fg"><label>Name</label><input id="cat-name" placeholder="Category name"></div><div class="fg"><label>Color</label><div class="col-opts"><div class="col-opt sel" data-color="#00e5bf" style="background:#00e5bf" onclick="pickColor(this)"></div><div class="col-opt" data-color="#22d3a0" style="background:#22d3a0" onclick="pickColor(this)"></div><div class="col-opt" data-color="#ff4d6d" style="background:#ff4d6d" onclick="pickColor(this)"></div><div class="col-opt" data-color="#ffc15e" style="background:#ffc15e" onclick="pickColor(this)"></div><div class="col-opt" data-color="#4db8ff" style="background:#4db8ff" onclick="pickColor(this)"></div><div class="col-opt" data-color="#c084fc" style="background:#c084fc" onclick="pickColor(this)"></div><div class="col-opt" data-color="#f97316" style="background:#f97316" onclick="pickColor(this)"></div><div class="col-opt" data-color="#ec4899" style="background:#ec4899" onclick="pickColor(this)"></div></div></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-cat')">Cancel</button><button class="btn btn-p" onclick="saveCat()"><i class="fa fa-check"></i> Save</button></div></div></div>
 <div class="overlay" id="m-pcat"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title" id="pcat-title">Product Category</div><button class="m-x" onclick="closeModal('m-pcat')"><i class="fa fa-times"></i></button></div><input type="hidden" id="pcat-id"><div class="fgrid one"><div class="fg"><label>Name (EN)</label><input id="pcat-name" placeholder="e.g. Fruits"></div><div class="fg"><label>Dhivehi Name</label><input id="pcat-dv" placeholder="Dhivehi" style="direction:rtl"></div><div class="fg"><label>Icon (Font Awesome)</label><input id="pcat-icon" placeholder="fa-apple-alt"></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-pcat')">Cancel</button><button class="btn btn-p" onclick="saveProdCat()"><i class="fa fa-check"></i> Save</button></div></div></div>
 <div class="overlay" id="m-addr"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-map-marker-alt" style="color:var(--red)"></i> Delivery Area</div><button class="m-x" onclick="closeModal('m-addr')"><i class="fa fa-times"></i></button></div><input type="hidden" id="addr-id"><div class="fgrid one"><div class="fg"><label>Area Name</label><input id="addr-name" placeholder="Male' City - Zone A"></div><div class="fg"><label>Full Address</label><input id="addr-detail" placeholder="Henveiru, Male', Maldives"></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-addr')">Cancel</button><button class="btn btn-p" onclick="saveAddr()"><i class="fa fa-check"></i> Save Area</button></div></div></div>
+<!-- REFERRAL CODE EDIT MODAL -->
+<div class="overlay" id="m-ref-edit"><div class="modal"><div class="m-handle"></div>
+  <div class="m-hdr"><div class="m-title"><i class="fa fa-ticket-alt" style="color:var(--purple)"></i> Edit Referral Code</div><button class="m-x" onclick="closeModal('m-ref-edit')"><i class="fa fa-times"></i></button></div>
+  <input type="hidden" id="ref-edit-uid">
+  <div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:14px;font-size:13px" id="ref-edit-user-info">—</div>
+  <div class="fgrid one">
+    <div class="fg">
+      <label>Referral Code</label>
+      <div style="display:flex;gap:8px">
+        <input id="ref-edit-code" placeholder="e.g. ZT-ABC123" maxlength="12" style="text-transform:uppercase;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:2px">
+        <button class="btn btn-g btn-sm" onclick="genRefCode()" style="white-space:nowrap"><i class="fa fa-random"></i> Generate</button>
+      </div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:4px">Code must be unique. Use letters and numbers only.</div>
+    </div>
+    <div class="fg"><label>Points Balance</label><input type="number" id="ref-edit-pts" placeholder="0"></div>
+    <div class="fg"><label>Referral Count</label><input type="number" id="ref-edit-refs" placeholder="0"></div>
+  </div>
+  <div class="m-foot">
+    <button class="btn btn-g" onclick="closeModal('m-ref-edit')">Cancel</button>
+    <button class="btn btn-d btn-sm" onclick="resetRefCode()"><i class="fa fa-redo"></i> Reset Code</button>
+    <button class="btn btn-p" onclick="saveRefEdit()"><i class="fa fa-check"></i> Save Changes</button>
+  </div>
+</div></div>
+
+<div class="overlay" id="m-pts-adjust"><div class="modal"><div class="m-handle"></div>
+  <div class="m-hdr"><div class="m-title"><i class="fa fa-star" style="color:var(--amber)"></i> Adjust Points</div><button class="m-x" onclick="closeModal('m-pts-adjust')"><i class="fa fa-times"></i></button></div>
+  <input type="hidden" id="pts-uid">
+  <div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:14px;font-size:13px" id="pts-user-info">—</div>
+  <div class="fgrid one">
+    <div class="fg"><label>Adjustment (+/- points)</label><input type="number" id="pts-amount" placeholder="e.g. 50 or -50"></div>
+    <div class="fg"><label>Reason</label><input id="pts-reason" placeholder="e.g. Manual bonus, Correction…"></div>
+  </div>
+  <div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-pts-adjust')">Cancel</button><button class="btn btn-p" onclick="applyPointsAdj()"><i class="fa fa-check"></i> Apply</button></div>
+</div></div>
+
 <div class="overlay" id="m-user"><div class="modal"><div class="m-handle"></div><div class="m-hdr"><div class="m-title"><i class="fa fa-user-shield" style="color:var(--a)"></i> Create Admin User</div><button class="m-x" onclick="closeModal('m-user')"><i class="fa fa-times"></i></button></div><div class="fgrid one"><div class="fg"><label>Email</label><input type="email" id="u-email" placeholder="admin@zento.mv"></div><div class="fg"><label>Password (min 6)</label><input type="password" id="u-pass" placeholder="..."></div></div><div class="m-foot"><button class="btn btn-g" onclick="closeModal('m-user')">Cancel</button><button class="btn btn-p" onclick="createUser()"><i class="fa fa-check"></i> Create</button></div></div></div>
 
 <!-- INVOICE FULLSCREEN VIEWER (appears once, here, correct location) -->
@@ -397,15 +494,16 @@ textarea{resize:vertical;min-height:60px}
 
 // ═══════════════════════════════════════════════
 // ZENTO ADMIN — Firebase COMPAT (classic script)
-// ═══════════════════════════════════════════════
-var firebaseConfig = {
-  apiKey:"AIzaSyBv6VN_oLx3lv1K3WOnzqUtl59GgBMS4TM",
-  authDomain:"zentoshop.firebaseapp.com",
-  databaseURL:"https://zentoshop-default-rtdb.firebaseio.com",
-  projectId:"zentoshop",
-  storageBucket:"zentoshop.firebasestorage.app",
-  messagingSenderId:"1098429506908",
-  appId:"1:1098429506908:web:1d301d70f1e55861164d99"
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCV4danc7NH3BfsQCxF2nuS0iV_V1aoQe0",
+  authDomain: "symcodermv-cba04.firebaseapp.com",
+  databaseURL: "https://symcodermv-cba04-default-rtdb.firebaseio.com",
+  projectId: "symcodermv-cba04",
+  storageBucket: "symcodermv-cba04.firebasestorage.app",
+  messagingSenderId: "432074388052",
+  appId: "1:432074388052:web:07ec04181e2af980b2b3c1",
+  measurementId: "G-GBHF3K1C8P"
 };
 firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
@@ -423,7 +521,7 @@ function mvr(n){return 'MVR '+Number(n||0).toLocaleString('en-MV',{minimumFracti
 function $(id){return document.getElementById(id);}
 function fmtDate(d){return d?new Date(d).toLocaleDateString('en-MV',{month:'short',day:'numeric',year:'numeric'}):'—';}
 
-var PAGE_TITLES={dashboard:'Dashboard',sales:'Daily Sales',expenses:'Expenses','shop-orders':'Shop Orders',staff:'Staff',salary:'Payroll',products:'Products',weekly:'Weekly Specials',slider:'Slider Banners',settings:'Shop Settings',categories:'Categories',access:'Access Control',reports:'Reports'};
+var PAGE_TITLES={dashboard:'Dashboard',sales:'Daily Sales',expenses:'Expenses','shop-orders':'Shop Orders',staff:'Staff',salary:'Payroll',products:'Products',weekly:'Weekly Specials',slider:'Slider Banners',settings:'Shop Settings',categories:'Categories','rewards-admin':'Points & Rewards',access:'Access Control',reports:'Reports'};
 
 // ── Notify ──
 function notify(msg,type){
@@ -557,7 +655,7 @@ function goto(page){
   document.querySelectorAll('[data-pg="'+page+'"]').forEach(function(b){b.classList.add('on');});
   $('pg-title').textContent=PAGE_TITLES[page]||page;
   curPage=page;
-  var actions={dashboard:renderDashboard,sales:renderSales,expenses:renderExpenses,'shop-orders':renderOrders,staff:renderStaff,salary:renderSalary,products:renderProducts,weekly:renderWeeklySpecials,slider:renderSlider,settings:loadSettings,categories:function(){renderExpCats();renderSaleCats();renderProdCats();},access:renderAccess,reports:loadReports};
+  var actions={dashboard:renderDashboard,sales:renderSales,expenses:renderExpenses,'shop-orders':renderOrders,staff:renderStaff,salary:renderSalary,products:renderProducts,weekly:renderWeeklySpecials,slider:renderSlider,settings:loadSettings,categories:function(){renderExpCats();renderSaleCats();renderProdCats();},'rewards-admin':renderRewardsAdmin,access:renderAccess,reports:loadReports};
   if(actions[page])actions[page]();
   window.scrollTo(0,0);
 }
@@ -668,9 +766,80 @@ function renderOrders(){
 function viewOrder(key){
   var o=ordersData.find(function(x){return x._key===key;});if(!o)return;
   var c=o.customer||{},items=Array.isArray(o.items)?o.items:[];
-  $('order-det-body').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Name</div><div style="font-weight:500">'+(c.fullName||'—')+'</div></div><div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Phone</div><div>'+(c.phone||'—')+'</div></div><div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Email</div><div style="font-size:12px">'+(c.email||'—')+'</div></div><div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Date</div><div>'+fmtDate(o.createdAt)+'</div></div></div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:5px">Delivery</div><div style="font-size:12px;color:var(--ink2);padding:8px 10px;background:var(--bg3);border-radius:8px;margin-bottom:12px">'+(c.address||'—')+'</div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px">Items</div><div style="border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px">'+items.map(function(i){return '<div style="display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px"><span>'+i.name+' <span style="color:var(--ink3)">x'+i.quantity+'</span></span><span style="color:var(--a);font-family:var(--mono)">'+mvr(i.price*i.quantity)+'</span></div>';}).join('')+'<div style="display:flex;justify-content:space-between;padding:8px 12px;font-weight:700;font-size:13px"><span>Total</span><span style="color:var(--a);font-family:var(--mono)">'+mvr(o.total)+'</span></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="updOrder(\''+key+'\',\'processing\');closeModal(\'m-order-det\')"><i class="fa fa-spinner"></i> Processing</button><button class="btn btn-p btn-sm" onclick="updOrder(\''+key+'\',\'completed\');closeModal(\'m-order-det\')"><i class="fa fa-check"></i> Complete</button><button class="btn btn-d btn-sm" onclick="updOrder(\''+key+'\',\'cancelled\');closeModal(\'m-order-det\')"><i class="fa fa-times"></i> Cancel</button></div>';
+
+  var slipHtml='';
+  if(o.slipUrl){
+    var safeUrl=o.slipUrl;
+    var slipType=o.slipType||'image';
+    if(slipType==='image'){
+      slipHtml='<div style="margin-bottom:14px">'
+        +'<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:6px">Bank Transfer Slip</div>'
+        +'<img id="slip-img" src="'+safeUrl+'" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:var(--bg3);cursor:pointer" onerror="this.style.opacity=0.2">'
+        +'<div style="display:flex;gap:8px;margin-top:8px">'
+          +'<button class="inv-view-btn" id="slip-fs-btn"><i class="fa fa-expand-alt"></i> Full Screen</button>'
+          +'<a href="'+safeUrl+'" target="_blank" class="inv-view-btn" style="text-decoration:none"><i class="fa fa-download"></i> Download</a>'
+        +'</div>'
+      +'</div>';
+    } else {
+      slipHtml='<div style="margin-bottom:14px">'
+        +'<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:6px">Bank Transfer Slip</div>'
+        +'<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border)">'
+          +'<i class="fa fa-file-pdf" style="font-size:28px;color:var(--amber);flex-shrink:0"></i>'
+          +'<div style="flex:1"><div style="font-weight:600;font-size:13px">PDF Bank Slip</div><div style="font-size:11px;color:var(--ink3)">Tap to open</div></div>'
+          +'<button class="btn btn-i btn-sm" id="slip-fs-btn"><i class="fa fa-eye"></i> View</button>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:8px">'
+          +'<a href="'+safeUrl+'" target="_blank" class="inv-view-btn" style="text-decoration:none"><i class="fa fa-download"></i> Download</a>'
+        +'</div>'
+      +'</div>';
+    }
+  } else {
+    slipHtml='<div style="margin-bottom:14px;padding:10px 12px;background:var(--rbg);border-radius:8px;border:1px solid rgba(255,77,109,.2);font-size:12px;color:var(--red)">'
+      +'<i class="fa fa-exclamation-circle"></i> No bank slip uploaded yet</div>';
+  }
+
+  $('order-det-body').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+      +'<div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Name</div><div style="font-weight:600">'+(c.fullName||'\u2014')+'</div></div>'
+      +'<div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Phone</div><div>'+(c.phone||'\u2014')+'</div></div>'
+      +'<div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Email</div><div style="font-size:11px">'+(c.email||'\u2014')+'</div></div>'
+      +'<div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Date</div><div>'+fmtDate(o.createdAt)+'</div></div>'
+    +'</div>'
+    +'<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:5px">Delivery Address</div>'
+    +'<div style="font-size:12px;color:var(--ink2);padding:8px 10px;background:var(--bg3);border-radius:8px;margin-bottom:14px">'+(c.address||'\u2014')+'</div>'
+    +slipHtml
+    +'<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px">Items</div>'
+    +'<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px">'
+      +items.map(function(i){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px"><span>'+i.name+' <span style="color:var(--ink3)">\u00d7'+i.quantity+'</span></span><span style="color:var(--a);font-family:var(--mono);font-weight:600">'+mvr(i.price*i.quantity)+'</span></div>';}).join('')
+      +'<div style="display:flex;justify-content:space-between;padding:10px 12px;font-weight:800;font-size:14px"><span>Total</span><span style="color:var(--a);font-family:var(--mono)">'+mvr(o.total)+'</span></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap" id="order-act-btns"></div>';
+
   openModal('m-order-det');
+
+  // Attach onclick after DOM is set — avoids ALL quote-escaping issues
+  var actBtns=$('order-act-btns');
+  if(actBtns){
+    var b1=document.createElement('button');b1.className='btn btn-g btn-sm';b1.innerHTML='<i class="fa fa-spinner"></i> Processing';
+    b1.onclick=function(){updOrder(key,'processing');closeModal('m-order-det');};
+    var b2=document.createElement('button');b2.className='btn btn-p btn-sm';b2.innerHTML='<i class="fa fa-check"></i> Complete';
+    b2.onclick=function(){updOrder(key,'completed');closeModal('m-order-det');};
+    var b3=document.createElement('button');b3.className='btn btn-d btn-sm';b3.innerHTML='<i class="fa fa-times"></i> Cancel';
+    b3.onclick=function(){updOrder(key,'cancelled');closeModal('m-order-det');};
+    actBtns.appendChild(b1);actBtns.appendChild(b2);actBtns.appendChild(b3);
+  }
+
+  // Attach slip viewer buttons after DOM is set
+  if(o.slipUrl){
+    var fsBtn=$('slip-fs-btn');
+    var imgEl=$('slip-img');
+    var slipUrl=o.slipUrl;
+    var slipType=o.slipType||'image';
+    if(fsBtn) fsBtn.onclick=function(){openInvViewer(slipUrl,slipType,'Bank Slip');};
+    if(imgEl) imgEl.onclick=function(){openInvViewer(slipUrl,'image','Bank Slip');};
+  }
 }
+
 function updOrder(key,status){
   db.ref('shop/orders/'+key).update({status:status,paymentStatus:status==='completed'?'completed':'pending_review'}).then(function(){notify('Order updated');}).catch(function(e){notify(e.message,'err');});
 }
@@ -703,7 +872,7 @@ function delStaff(key){if(!confirm('Delete?'))return;db.ref('shop/staff/'+key).r
 function refreshSalStaff(){var ss=$('sal-staff');if(ss){ss.innerHTML=staffData.map(function(s){return '<option value="'+s._key+'" data-sal="'+(s.basicSalary||0)+'">'+s.name+'</option>';}).join('');}}
 
 // ── Salary ──
-function openSalaryModal(sal){
+function openSalaryModal(sal){attachSalStaffListener();
   $('sal-id').value=sal?sal._key:''; $('sal-month').value=sal?sal.month:new Date().toISOString().slice(0,7);
   $('sal-basic').value=sal?sal.basicSalary:''; $('sal-bonus').value=sal?sal.bonus:0;
   $('sal-ded').value=sal?sal.deduction:0; $('sal-status').value=sal?sal.status:'pending';
@@ -711,8 +880,9 @@ function openSalaryModal(sal){
   if(sal&&sal.staffKey)$('sal-staff').value=sal.staffKey;
   openModal('m-salary');
 }
-function openSalaryForStaff(key,sal){$('sal-staff').value=key;$('sal-basic').value=sal;$('sal-month').value=new Date().toISOString().slice(0,7);$('sal-bonus').value=0;$('sal-ded').value=0;$('sal-notes').value='';$('sal-id').value='';openModal('m-salary');}
-$('sal-staff').addEventListener('change',function(){var opt=this.options[this.selectedIndex];if(opt)$('sal-basic').value=opt.dataset.sal||'';});
+function openSalaryForStaff(key,sal){attachSalStaffListener();$('sal-staff').value=key;$('sal-basic').value=sal;$('sal-month').value=new Date().toISOString().slice(0,7);$('sal-bonus').value=0;$('sal-ded').value=0;$('sal-notes').value='';$('sal-id').value='';openModal('m-salary');}
+// sal-staff change handler - called safely after modal opens (element may not exist at parse time)
+function attachSalStaffListener(){var el=$('sal-staff');if(el)el.onchange=function(){var opt=this.options[this.selectedIndex];if(opt)$('sal-basic').value=opt.dataset.sal||'';};};
 function renderSalary(){
   var mon=$('sal-mon').value, flt=$('sal-flt').value;
   var list=salaryData.filter(function(s){return s.month===mon;});
@@ -738,17 +908,28 @@ function delSal(key){if(!confirm('Delete?'))return;db.ref('shop/payroll/'+key).r
 
 // ── Products ──
 function openProdModal(pr){
-  $('p-id').value=pr?pr._key:''; $('p-name').value=pr?pr.name||'':'';
-  $('p-dv').value=pr?pr.name_dv||'':''; $('p-price').value=pr?pr.price||'':'';
-  $('p-oprice').value=pr?pr.original_price||'':''; $('p-cat').value=pr?pr.category||'fruits':'fruits';
-  $('p-stock').value=pr?pr.stock||'':''; $('p-desc').value=pr?pr.description||'':'';
-  $('p-feat').value=pr&&pr.featured?'true':'false'; $('p-active').value=pr&&pr.active===false?'false':'true';
+  $('p-id').value=pr?pr._key:'';
+  $('p-name').value=pr?pr.name||'':'';
+  $('p-dv').value=pr?pr.name_dv||'':'';
+  $('p-price').value=pr?pr.price||'':'';
+  $('p-oprice').value=pr?pr.original_price||'':'';
+  $('p-cat').value=pr?pr.category||'fruits':'fruits';
+  $('p-stock').value=pr?pr.stock||'':'';
+  $('p-desc').value=pr?pr.description||'':'';
+  $('p-feat').value=pr&&pr.featured?'true':'false';
+  $('p-active').value=pr&&pr.active===false?'false':'true';
   $('p-imgurl').value=pr?pr.image||'':'';
+  // Set SALE checkbox — show sale if original_price exists and showSale is true
+  var showSaleEl=$('p-show-sale'); if(showSaleEl) showSaleEl.checked=!!(pr&&pr.showSale);
+  // Set OOS checkbox
+  var oosEl=$('p-oos'); if(oosEl) oosEl.checked=!!(pr&&(pr.stock===0||pr.stock==='0'));
   openModal('m-product');
 }
 function saveProduct(){
   var key=$('p-id').value;
-  var data={name:$('p-name').value.trim(),name_dv:$('p-dv').value.trim(),price:parseFloat($('p-price').value)||0,original_price:parseFloat($('p-oprice').value)||null,category:$('p-cat').value,stock:parseInt($('p-stock').value)||0,description:$('p-desc').value,featured:$('p-feat').value==='true',active:$('p-active').value==='true',image:$('p-imgurl').value.trim(),updatedAt:new Date().toISOString()};
+  var origPrice=parseFloat($('p-oprice').value)||null;
+  var showSaleEl=$('p-show-sale'); var showSale=showSaleEl?showSaleEl.checked:false;
+  var data={name:$('p-name').value.trim(),name_dv:$('p-dv').value.trim(),price:parseFloat($('p-price').value)||0,original_price:showSale&&origPrice?origPrice:null,showSale:showSale,category:$('p-cat').value,stock:parseInt($('p-stock').value)||0,description:$('p-desc').value,featured:$('p-feat').value==='true',active:$('p-active').value==='true',image:$('p-imgurl').value.trim(),updatedAt:new Date().toISOString()};
   if(!data.name||!data.price){notify('Name and price required','err');return;}
   if(key){db.ref('shop/products/'+key).update(data).then(function(){notify('Product updated');closeModal('m-product');}).catch(function(e){notify(e.message,'err');});}
   else{data.createdAt=new Date().toISOString();db.ref('shop/products').push(data).then(function(){notify('Product added - live in shop!');closeModal('m-product');}).catch(function(e){notify(e.message,'err');});}
@@ -1139,6 +1320,334 @@ function clearWeeklySpecials() {
       notify('Weekly Specials cleared');
     })
     .catch(function(e) { notify(e.message, 'err'); });
+}
+
+
+// ═══════════════════════════════════════════
+// REWARDS & POINTS ADMIN
+// ═══════════════════════════════════════════
+var allRewardsUsers = [];
+
+function renderRewardsAdmin() {
+  loadPointsConfig();
+  loadRewardsUsers();
+}
+
+function loadPointsConfig() {
+  db.ref('shop/pointsConfig').once('value').then(function(snap) {
+    var cfg = snap.exists() ? snap.val() : {};
+    $('pc-signup').value  = cfg.signupPoints   || 100;
+    $('pc-order').value   = cfg.orderPointsRate || 10;
+    $('pc-ref').value     = cfg.referralPoints  || 50;
+    $('pc-thresh').value  = cfg.redeemThreshold || 100;
+    $('pc-disc').value    = cfg.redeemDiscount  || 10;
+  }).catch(function(e){ notify(e.message,'err'); });
+}
+
+function savePointsConfig() {
+  var cfg = {
+    signupPoints:    parseInt($('pc-signup').value)  || 100,
+    orderPointsRate: parseInt($('pc-order').value)   || 10,
+    referralPoints:  parseInt($('pc-ref').value)     || 50,
+    redeemThreshold: parseInt($('pc-thresh').value)  || 100,
+    redeemDiscount:  parseInt($('pc-disc').value)    || 10,
+    updatedAt: new Date().toISOString()
+  };
+  db.ref('shop/pointsConfig').set(cfg)
+    .then(function(){ notify('Points config saved! Live in shop ✓'); })
+    .catch(function(e){ notify(e.message,'err'); });
+}
+
+function loadRewardsUsers() {
+  $('rewards-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--ink3)"><i class="fa fa-spinner fa-spin"></i> Loading users…</td></tr>';
+  db.ref('users').once('value').then(function(snap) {
+    if (!snap.exists()) { allRewardsUsers=[]; renderRewardsTable([]); return; }
+    allRewardsUsers = Object.entries(snap.val())
+      .filter(function(e){ return e[1] && e[1].email; })
+      .map(function(e){ return Object.assign({}, e[1], {_uid: e[0]}); })
+      .sort(function(a,b){ return (b.points||0)-(a.points||0); });
+    $('rewards-users-sub').textContent = allRewardsUsers.length + ' registered users';
+    renderRewardsTable(allRewardsUsers);
+  }).catch(function(e){ notify(e.message,'err'); });
+}
+
+function filterRewardsUsers() {
+  var q = ($('rewards-search').value||'').toLowerCase();
+  var list = q ? allRewardsUsers.filter(function(u){
+    return (u.fullName||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+  }) : allRewardsUsers;
+  renderRewardsTable(list);
+}
+
+function renderRewardsTable(list) {
+  $('rewards-tbody').innerHTML = list.length === 0
+    ? '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--ink3)">No users found</td></tr>'
+    : list.map(function(u) {
+        var pts      = u.points || 0;
+        var uid      = u._uid  || '';
+        var name     = (u.fullName  || 'User').replace(/"/g, '');
+        var email    = (u.email     || '—');
+        var refCode  = u.referralCode || '—';
+        var refs     = u.referralCount || 0;
+        var joined   = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-MV',{month:'short',day:'numeric',year:'numeric'}) : '—';
+        var ptsBadge = pts >= 100 ? 'bg-green' : pts > 0 ? 'bg-amber' : 'bg-muted';
+
+        // Referral usage count
+        var usedBy = allRewardsUsers.filter(function(x){ return x.referredBy === uid; }).length;
+
+        var adjBtn   = '<button class="btn btn-p btn-sm btn-ico" onclick="openPtsAdj(this)" data-uid="'+uid+'" data-name="'+name+'" data-pts="'+pts+'" title="Adjust Points"><i class="fa fa-star"></i></button>';
+        var editBtn  = '<button class="btn btn-i btn-sm btn-ico" onclick="openRefEdit(this)" data-uid="'+uid+'" data-name="'+name+'" data-code="'+refCode+'" data-pts="'+pts+'" data-refs="'+refs+'" title="Edit Ref Code"><i class="fa fa-ticket-alt"></i></button>';
+        var resetBtn = '<button class="btn btn-d btn-sm btn-ico" onclick="resetUserPoints(this)" data-uid="'+uid+'" title="Reset Points"><i class="fa fa-redo"></i></button>';
+
+        return '<tr>'
+          + '<td style="font-weight:600">' + (u.fullName||'—') + '</td>'
+          + '<td style="font-size:11px;color:var(--ink3)">' + email + '</td>'
+          + '<td><span class="badge ' + ptsBadge + '" style="font-family:var(--mono);font-size:11px">' + pts + ' pts</span></td>'
+          + '<td>'
+            + '<div style="display:flex;align-items:center;gap:6px">'
+            + '<span class="badge bg-purple" style="font-family:var(--mono);font-size:11px;letter-spacing:1px;background:var(--pbg);color:var(--purple)">' + refCode + '</span>'
+            + '</div>'
+          + '</td>'
+          + '<td style="text-align:center;font-weight:600">' + refs + '</td>'
+          + '<td style="text-align:center;color:var(--ink3);font-size:11px">' + usedBy + ' users</td>'
+          + '<td style="font-size:11px;color:var(--ink3)">' + joined + '</td>'
+          + '<td><div class="btn-grp">' + adjBtn + editBtn + resetBtn + '</div></td>'
+          + '</tr>';
+      }).join('');
+
+  $('rewards-mob').innerHTML = list.length === 0 ? '' : list.map(function(u) {
+    var pts     = u.points || 0;
+    var uid     = u._uid   || '';
+    var name    = (u.fullName || 'User').replace(/"/g, '');
+    var refCode = u.referralCode || '—';
+    var refs    = u.referralCount || 0;
+    return '<div class="mob-card">'
+      + '<div class="mob-top">'
+        + '<div><div class="mob-title">' + (u.fullName||'—') + '</div><div style="font-size:10px;color:var(--ink3)">' + (u.email||'—') + '</div></div>'
+        + '<span class="badge ' + (pts>=100?'bg-green':pts>0?'bg-amber':'bg-muted') + '" style="font-size:13px;font-weight:800">' + pts + ' pts</span>'
+      + '</div>'
+      + '<div class="mob-meta">'
+        + '<span class="badge" style="background:var(--pbg);color:var(--purple);font-family:var(--mono);letter-spacing:1px">' + refCode + '</span>'
+        + '<span style="font-size:10px;color:var(--ink3)">Refs: ' + refs + '</span>'
+      + '</div>'
+      + '<div class="mob-acts">'
+        + '<button class="btn btn-p btn-sm" onclick="openPtsAdj(this)" data-uid="'+uid+'" data-name="'+name+'" data-pts="'+pts+'"><i class="fa fa-star"></i> Points</button>'
+        + '<button class="btn btn-i btn-sm" onclick="openRefEdit(this)" data-uid="'+uid+'" data-name="'+name+'" data-code="'+refCode+'" data-pts="'+pts+'" data-refs="'+refs+'"><i class="fa fa-ticket-alt"></i> Ref Code</button>'
+        + '<button class="btn btn-d btn-sm" onclick="resetUserPoints(this)" data-uid="'+uid+'"><i class="fa fa-redo"></i></button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function openPtsAdj(btn) {
+  var uid = btn.dataset.uid;
+  var name = btn.dataset.name;
+  var currentPts = btn.dataset.pts;
+  $('pts-uid').value = uid;
+  $('pts-user-info').innerHTML = '<b>' + name + '</b> — Current: <b style="color:var(--amber)">' + currentPts + ' pts</b>';
+  $('pts-amount').value = '';
+  $('pts-reason').value = '';
+  openModal('m-pts-adjust');
+}
+
+function applyPointsAdj() {
+  var uid = $('pts-uid').value;
+  var amt = parseInt($('pts-amount').value) || 0;
+  var reason = $('pts-reason').value.trim() || 'Admin adjustment';
+  if (!amt) { notify('Enter an amount', 'err'); return; }
+
+  db.ref('users/' + uid).once('value').then(function(snap) {
+    if (!snap.exists()) { notify('User not found', 'err'); return; }
+    var cur = snap.val();
+    var newPts = Math.max(0, (cur.points || 0) + amt);
+    var updates = { points: newPts };
+    return db.ref('users/' + uid).update(updates).then(function() {
+      return db.ref('users/' + uid + '/pointsHistory').push({
+        desc: (amt > 0 ? '⭐ Admin bonus: ' : '📝 Admin adjustment: ') + reason,
+        points: Math.abs(amt),
+        type: amt > 0 ? 'earn' : 'use',
+        date: new Date().toISOString()
+      });
+    });
+  }).then(function() {
+    notify('Points updated! ' + (amt > 0 ? '+' : '') + amt + ' pts');
+    closeModal('m-pts-adjust');
+    loadRewardsUsers();
+  }).catch(function(e){ notify(e.message, 'err'); });
+}
+
+function resetUserPoints(btn) {
+  var uid = btn.dataset.uid;
+  if (!confirm('Reset this user to 0 points?')) return;
+  db.ref('users/' + uid).update({ points: 0 })
+    .then(function() {
+      db.ref('users/' + uid + '/pointsHistory').push({
+        desc: '📝 Admin reset points to 0',
+        points: 0, type: 'use', date: new Date().toISOString()
+      });
+      notify('Points reset to 0');
+      loadRewardsUsers();
+    }).catch(function(e){ notify(e.message,'err'); });
+}
+
+
+// ═══════════════════════════════════════════
+// REFERRAL CODE MANAGEMENT
+// ═══════════════════════════════════════════
+
+function openRefEdit(btn) {
+  var uid     = btn.dataset.uid;
+  var name    = btn.dataset.name;
+  var code    = btn.dataset.code;
+  var pts     = btn.dataset.pts;
+  var refs    = btn.dataset.refs;
+  $('ref-edit-uid').value       = uid;
+  $('ref-edit-code').value      = code === '—' ? '' : code;
+  $('ref-edit-pts').value       = pts;
+  $('ref-edit-refs').value      = refs;
+  $('ref-edit-user-info').innerHTML =
+    '<b>' + name + '</b> &mdash; Current code: '
+    + '<span style="font-family:var(--mono);font-weight:700;color:var(--purple)">' + code + '</span>';
+  openModal('m-ref-edit');
+}
+
+function genRefCode() {
+  // Get prefix from config input or default ZT
+  var prefix = ($('pc-prefix') && $('pc-prefix').value.trim().toUpperCase()) || 'ZT';
+  var chars  = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var uid    = $('ref-edit-uid').value || '';
+  // Use last 4 of uid for uniqueness, then 2 random chars
+  var base   = uid.slice(-4).toUpperCase().replace(/[^A-Z0-9]/g,'X');
+  var rand   = '';
+  for (var i = 0; i < 2; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  $('ref-edit-code').value = prefix + '-' + base + rand;
+}
+
+function saveRefEdit() {
+  var uid  = $('ref-edit-uid').value;
+  var code = ($('ref-edit-code').value || '').trim().toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+  var pts  = parseInt($('ref-edit-pts').value)  || 0;
+  var refs = parseInt($('ref-edit-refs').value) || 0;
+
+  if (!uid)  { notify('No user selected', 'err'); return; }
+  if (!code) { notify('Enter a referral code', 'err'); return; }
+  if (code.length < 4) { notify('Code too short (min 4 chars)', 'err'); return; }
+
+  // Check code is unique (not used by another user)
+  var existing = allRewardsUsers.find(function(u) {
+    return u.referralCode === code && u._uid !== uid;
+  });
+  if (existing) {
+    notify('Code "' + code + '" already used by ' + (existing.fullName || 'another user'), 'err');
+    return;
+  }
+
+  // Get old code first so we can remove it from lookup
+  db.ref('users/' + uid).once('value').then(function(snap) {
+    var oldCode  = snap.exists() ? (snap.val().referralCode || '') : '';
+    var userName = snap.exists() ? (snap.val().fullName || 'User') : 'User';
+    var updates  = {};
+    updates['users/' + uid + '/referralCode']  = code;
+    updates['users/' + uid + '/points']        = pts;
+    updates['users/' + uid + '/referralCount'] = refs;
+    updates['users/' + uid + '/updatedAt']     = new Date().toISOString();
+    updates['shop/referralCodes/' + code]      = { uid: uid, name: userName, updatedAt: new Date().toISOString() };
+    if (oldCode && oldCode !== code) updates['shop/referralCodes/' + oldCode] = null;
+    return db.ref('/').update(updates);
+  }).then(function() {
+    db.ref('users/' + uid + '/pointsHistory').push({
+      desc: 'Admin updated referral code to ' + code,
+      points: 0, type: 'earn', date: new Date().toISOString()
+    });
+    notify('Referral code updated to ' + code + ' ✓');
+    closeModal('m-ref-edit');
+    loadRewardsUsers();
+  }).catch(function(e) { notify(e.message, 'err'); });
+}
+
+function resetRefCode() {
+  var uid    = $('ref-edit-uid').value;
+  var prefix = ($('pc-prefix') && $('pc-prefix').value.trim().toUpperCase()) || 'ZT';
+  if (!uid) { notify('No user selected', 'err'); return; }
+  if (!confirm('Generate a new random referral code for this user?')) return;
+
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var rand  = '';
+  for (var i = 0; i < 6; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  var newCode = prefix + '-' + rand;
+
+  db.ref('users/' + uid).once('value').then(function(snap) {
+    var oldCode  = snap.exists() ? (snap.val().referralCode || '') : '';
+    var userName = snap.exists() ? (snap.val().fullName || 'User') : 'User';
+    var updates  = {};
+    updates['users/' + uid + '/referralCode'] = newCode;
+    updates['shop/referralCodes/' + newCode]  = { uid: uid, name: userName, updatedAt: new Date().toISOString() };
+    if (oldCode && oldCode !== newCode) updates['shop/referralCodes/' + oldCode] = null;
+    return db.ref('/').update(updates);
+  }).then(function() {
+    notify('New code generated: ' + newCode + ' ✓');
+    $('ref-edit-code').value = newCode;
+    loadRewardsUsers();
+  }).catch(function(e) { notify(e.message, 'err'); });
+}
+
+// ── Update savePointsConfig to include referral disc & prefix ──
+var _origSavePointsConfig = savePointsConfig;
+savePointsConfig = function() {
+  var cfg = {
+    signupPoints:    parseInt($('pc-signup').value)   || 100,
+    orderPointsRate: parseInt($('pc-order').value)    || 10,
+    referralPoints:  parseInt($('pc-ref').value)      || 50,
+    referralDiscount:parseInt($('pc-ref-disc') ? $('pc-ref-disc').value : 10) || 10,
+    redeemThreshold: parseInt($('pc-thresh').value)   || 100,
+    redeemDiscount:  parseInt($('pc-disc').value)     || 10,
+    codePrefix:      ($('pc-prefix') ? $('pc-prefix').value.trim().toUpperCase() : 'ZT') || 'ZT',
+    allowSelfUse:    $('pc-selfuse') ? $('pc-selfuse').value === 'true' : false,
+    updatedAt:       new Date().toISOString()
+  };
+  db.ref('shop/pointsConfig').set(cfg)
+    .then(function(){ notify('Config saved! Live in shop \u2713'); })
+    .catch(function(e){ notify(e.message,'err'); });
+};
+
+// ── Update loadPointsConfig to load new fields ──
+var _origLoadPointsConfig = loadPointsConfig;
+loadPointsConfig = function() {
+  db.ref('shop/pointsConfig').once('value').then(function(snap) {
+    var cfg = snap.exists() ? snap.val() : {};
+    $('pc-signup').value  = cfg.signupPoints    || 100;
+    $('pc-order').value   = cfg.orderPointsRate || 10;
+    $('pc-ref').value     = cfg.referralPoints  || 50;
+    $('pc-thresh').value  = cfg.redeemThreshold || 100;
+    $('pc-disc').value    = cfg.redeemDiscount  || 10;
+    if ($('pc-ref-disc')) $('pc-ref-disc').value = cfg.referralDiscount || 10;
+    if ($('pc-prefix'))   $('pc-prefix').value   = cfg.codePrefix       || 'ZT';
+    if ($('pc-selfuse'))  $('pc-selfuse').value  = cfg.allowSelfUse ? 'true' : 'false';
+  }).catch(function(e){ notify(e.message,'err'); });
+};
+
+// Sync all existing user referral codes to public lookup path
+function syncAllRefCodes() {
+  if (!confirm('Sync all user referral codes? This rebuilds the public lookup for all users.')) return;
+  notify('Syncing...');
+  db.ref('users').once('value').then(function(snap) {
+    if (!snap.exists()) { notify('No users found', 'err'); return; }
+    var updates = {};
+    var count = 0;
+    Object.entries(snap.val()).forEach(function(entry) {
+      var uid = entry[0], u = entry[1];
+      if (u && u.referralCode) {
+        updates['shop/referralCodes/' + u.referralCode] = {
+          uid: uid, name: u.fullName || 'User', updatedAt: new Date().toISOString()
+        };
+        count++;
+      }
+    });
+    if (count === 0) { notify('No referral codes to sync', 'err'); return; }
+    return db.ref('/').update(updates).then(function() {
+      notify(count + ' referral codes synced ✓');
+    });
+  }).catch(function(e) { notify(e.message, 'err'); });
 }
 
 // ── Boot ──
